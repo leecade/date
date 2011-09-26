@@ -1,75 +1,414 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-  <meta charset='utf-8'>
+<meta charset="utf-8"/>
+<title>Javascript历法算法类</title>
+<style type="text/css">
+*{ margin:0; padding:0;}
+#debugForm{ padding:5px;}
+#debugForm input{ width:18px; border:1px solid #999; line-height:19px; height:19px;vertical-align:middle; padding-left:2px;}
+#debugForm .year{ width:35px;}
+#debugForm button{ margin-left:5px; height:22px; vertical-align:middle;}
+#debugForm span{vertical-align:middle; color:#999; margin:0 1px;}
 
-  <title>leecade/date @ GitHub</title>
+pre{font:normal 14px/1.5 "微软雅黑"; padding:20px;}
+s{ color:#999;}
 
-  <style type="text/css">
-    body {
-      margin-top: 1.0em;
-      background-color: #bf809a;
-      font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: #000000;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-    h1 { font-size: 3.8em; color: #407f65; margin-bottom: 3px; }
-    h1 .small { font-size: 0.4em; }
-    h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #407f65; }
-    h3 { text-align: center; color: #407f65; }
-    a { color: #407f65; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-  </style>
+h1{}
+h4{ font-size:16px;}
+h5{}
+em{ font-style:normal; padding-left:10px;}
+
+.red{ color:red;}
+</style>
+<script src="js/g.date.js"></script>
 </head>
 
 <body>
-  <a href="http://github.com/leecade/date"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+<pre>
+<h1>Javascript历法算法类</h1>
+<p></p>
+<strong>功能支持：</strong> 公历（星期、节日）、农历（中文化、干支、节气、生肖、节日、闰月）、伊历（马来语、阿拉伯语）
 
-  <div id="container">
+<strong>农历日期选择范围：</strong> 1900-1-31[正月初一] ~ 2050-3-21[二月廿九] （无闰月map支持）
 
-    <div class="download">
-      <a href="http://github.com/leecade/date/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/leecade/date/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
-
-    <h1><a href="http://github.com/leecade/date">date</a>
-      <span class="small">by <a href="http://github.com/leecade">leecade</a></span></h1>
-
-    <div class="description">
-      Javascript历法算法类
-    </div>
-
-    <h2>Contact</h2>
-<p>斯人 (yuji@baidu.com)<br/>      </p>
+<strong>权威参照：</strong>  农历以<a href="http://www.time.ac.cn/calendar/calendar.htm" target="_blank">日梭万年历</a>（<a href="http://ishare.iask.sina.com.cn/f/10062594.html" target="_blank">下载地址</a>）为准，伊历以<a href="http://www.al-islam.com/Loader.aspx?pageid=620" target="_blank">al-islam.com</a>为准
 
 
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/leecade/date/zipball/master">zip</a> or
-      <a href="http://github.com/leecade/date/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/leecade/date</pre>
-    </p>
+<h4>Wiki</h4>
+<strong>闰月</strong> 农历与农业耕种相关，为了协调回归年与农历年的矛盾，防止农历年月与回归年及四季脱节，每逢闰年增加的一个月；以查表法实现
 
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/leecade/date">leecade/date</a>
-    </div>
+<strong>立春</strong> 每年2月4日或5日太阳到达黄经315度时，农历的开始，干支的分界（可以确定一定为公历2月份）；以查表法实现
 
-  </div>
+<strong>干支</strong> 天干与地支搭配共60对循环计数，类似60进制
 
-  
+<strong>干支纪年</strong> 以甲子开始，60年一个周期，以立春为界
+	算法原理：
+		a.以1900年立春为起始范围，确定其年立春后为庚子年，与甲子差值36
+		b.月份（立春为2月）和日期上立春分界
+        
+<strong>干支纪月</strong> 天干由该月所在年的天干决定，地支由一太阳年中二十四节气其中的十二节气分界
+	算法原理：
+		a.以1900年第一个节气（小寒）为起始范围，确定其后为丁丑月，差值12
+		b.日期上以当月第一个节气分界
+        
+<strong>干支纪日</strong> 60日一个周期，每80年，干支纪日对应的公历月日日期若没有遇到能被100但非400整除的公元年，会反复一次循环
+	算法原理：
+		a.以1900-1-1为起始范围，确定为甲戌日，差值10
+		b.通过换算当月1号与起始日差值计算
+
+<strong>生肖</strong> 生肖究竟是从立春开始算，还是从正月初一开始算，在民间以及民俗学专家中都有很大的争议，参照部分权威历法，以正月初一开始算
+
+<h4>Future</h4>
+1. 泰国佛历
+2. 星座
+3. 万年历
+
+<h4>Update</h4>
+[2011.9.26]
+1. 按jsdoc规范更新注释
+2. 扩展G.date.format方法
+3. 调整接口，参数省略策略统一为 G.date.format/G.date.lunarTpl/G.date.islTpl 允许省略
+4. 获取生肖名拆分为独立接口 G.date.toSx()
+
+<h4>Test case</h4>
+1. 闰月（修正闰月下一月第一天仍为闰月）
+2. 除夕日与年份相关
+3. 自测了2011、2012、2013全年，随机年份完全吻合
+
+<h4>Bugs</h4>
+<s>1. 除夕</s>
+2. 1985.1 农历日差了一天
+<s>3. 2月份干支年没有递增</s>
+<s>4. 2012.1 应该为兔年</s>
+
+<form id="debugForm" onSubmit="return false">
+<h4>Debug</h4>
+<input name="y" class="year" value="1900" /><span>-</span><input name="m" value="1" /><span>-</span><input disabled="disabled" name="d" /><button type="submit">debug</button><button type="button" onClick="location.reload()">refresh</button> <span>(需要浏览器支持console.log)</span>
+</form>
+
+<h4>demo</h4>
+<div id="demo0"><strong>今日农历（内置模板）: </strong></div>
+<textarea class="lang-html">
+<script>
+function $(id) {return document.getElementById(id)}
+$("demo0").innerHTML += G.date.lunarTpl()
+</script>
+</textarea>
+<script>function $(id) {return document.getElementById(id)};$("demo0").innerHTML += G.date.lunarTpl()</script>
+<div id="demo1"><strong>今日伊历（内置模板）: </strong></div>
+<textarea class="lang-html">
+<script>
+$("demo1").innerHTML += G.date.islTpl()
+</script>
+</textarea>
+<script>$("demo1").innerHTML += G.date.islTpl()</script>
+<h4>API <span class="red">(由于最近接口调整，文档未能及时更新，故更多详细内容请直接查阅源码)</span></h4>
+<div id="api1"><strong>1.从date对象获取日期: </strong></div>
+<em><strong>G.date.getDate</strong>(date)</em>
+<script>$("api1").innerHTML += G.date.getDate().y + "年" + G.date.getDate().m + "月" + G.date.getDate().d + "日"</script>
+<textarea class="lang-html">
+<script>
+$("api1").innerHTML += G.date.getDate().y + "年" + G.date.getDate().m + "月" + G.date.getDate().d + "日"
+//arguments: (date) [null --> new Date()]
+//return: {y: 年, m: 月, d: 日}
+</script>
+</textarea>
+
+<div id="api2"><strong>2.返回某年第n个节气日期: </strong></div>
+<em><strong>G.date.getDateBySolar</strong>(y, n)</em>
+<script>$("api2").innerHTML += "2011年立春为" + G.date.getDateBySolar(2011, 2).m + "月" + G.date.getDateBySolar(2011, 2).d + "日"</script>
+<textarea class="lang-html">
+<script>
+$("api2").innerHTML += "2011年立春为" + G.date.getDateBySolar(2011, 2).m + "月" + G.date.getDateBySolar(2011, 2).d + "日"
+//arguments: (y, n) [y: 年份, n=0 --> 小寒]
+//return: {m:月,d:日}
+</script>
+</textarea>
+
+<div id="api3"><strong>3.返回公历月份天数: </strong></div>
+<em><strong>G.date.getDaysByMonth</strong>(y, m)</em>
+<script>$("api3").innerHTML += "2011年9月共" + G.date.getDaysByMonth(2011, 9) + "天"</script>
+<textarea class="lang-html">
+<script>
+$("api3").innerHTML += "2011年9月共" + G.date.getDaysByMonth(2011, 9) + "天"
+//arguments: (y, m) [y: 年份, m: 月份]
+//return: Num
+</script>
+</textarea>
+
+<div id="api4"><strong>4.返回公历年份的闰月月份: </strong></div>
+<em><strong>G.date.getLeapMonth</strong>(y)</em>
+<script>$("api4").innerHTML += "2012年的闰月为" + G.date.getLeapMonth(2012) + "月"</script>
+<textarea class="lang-html">
+<script>
+$("api4").innerHTML += "2012年的闰月为：" + G.date.getLeapMonth(2012) + "月"
+//arguments: (y) [y: 年份]
+//return: Num || 0
+</script>
+</textarea>
+
+<div id="api5"><strong>5.返回农历月份天数: </strong></div>
+<em><strong>G.date.getDaysByLunarMonth</strong>(y)</em>
+<script>$("api5").innerHTML += "农历2011年10月共" + G.date.getDaysByLunarMonth(2012, 10) + "天"</script>
+<textarea class="lang-html">
+<script>
+$("api5").innerHTML += "农历2011年10月共：" + G.date.getDaysByLunarMonth(2012, 10) + "天"
+//arguments: (y) [y: 农历年份, m: 农历月份]
+//return: Num
+</script>
+</textarea>
+
+<div id="api6"><strong>6.返回某年闰月天数: </strong></div>
+<em><strong>G.date.getLeapDays</strong>(y)</em>
+<script>$("api6").innerHTML += "2012年的闰月有" + G.date.getLeapDays(2012) + "天"</script>
+<textarea class="lang-html">
+<script>
+$("api6").innerHTML += "2012年的闰月有：" + G.date.getLeapDays(2012) + "天"
+//arguments: (y) [y: 年份]
+//return: Num || 0
+</script>
+</textarea>
+
+<div id="api7"><strong>7.返回公历年份天数: </strong></div>
+<em><strong>G.date.getDaysByYear</strong>(y)</em>
+<script>$("api7").innerHTML += "2011年共有" + G.date.getDaysByYear(2011) + "天"</script>
+<textarea class="lang-html">
+<script>
+$("api7").innerHTML += "2012年共有" + G.date.getDaysByYear(2011) + "天"
+//arguments: (y) [y: 年份]
+//return: Num
+</script>
+</textarea>
+
+<div id="api8"><strong>8.返回节日名按月、日（支持公历/农历）: </strong></div>
+<em><strong>G.date.getFeast</strong>(m, d, type, y)</em>
+<script>$("api8").innerHTML += "公历2月14为" + G.date.getFeast(2, 14) + "，农历1月15为" + G.date.getFeast(1, 15, 1)</script>
+<textarea class="lang-html">
+<script>
+$("api8").innerHTML += "公历2月14为" + G.date.getFeast(2, 14) + "，农历1月15为" + G.date.getFeast(1, 15, 1)
+//arguments: (m, d, type, y) [m: 月份, d: 日期, type: 节日类型（公/农历）, y: 年份] （m, d需与type一致，默认为公历节日，如无返回""，type：[0 --> 公历，1 --> 农历]）
+//return: String || ""
+//如果需要匹配"除夕"，需传y(年份)（其他节日不需要）
+</script>
+</textarea>
+
+<div id="api9"><strong>9.返回节气名按公历年、月、日: </strong></div>
+<em><strong>G.date.getSolar</strong>(y, m, d)</em>
+<script>$("api9").innerHTML += "2012年2月19的节气为" + G.date.getSolar(2012, 2, 19)</script>
+<textarea class="lang-html">
+<script>
+$("api9").innerHTML += "2012年2月19的节气为" + G.date.getSolar(2012, 2, 19)
+//arguments: (y, m, d) [y: 年份, m: 月份, d: 日期]
+//return: String || ""
+</script>
+</textarea>
+
+<div id="api10"><strong>10.根据offset计算干支: </strong></div>
+<em><strong>G.date.cyclical</strong>(n)</em>
+<script>$("api10").innerHTML += "第11位干支为" + G.date.cyclical(11)</script>
+<textarea class="lang-html">
+<script>
+$("api10").innerHTML += "第11位干支为" + G.date.cyclical(11)
+//arguments: (n) [n: offset] （0 --> 甲子，以60进制循环）
+//return: String （干支名）
+</script>
+</textarea>
+
+<div id="api11"><strong>11.公历转农历: </strong></div>
+<em><strong>G.date.toLunar</strong>(y, m, d)</em>
+<script>var api11 = G.date.toLunar(1983, 10, 20);$("api11").innerHTML += "1983年10月20对应农历为" + api11.cy + "年" + api11.cm + "月" + api11.cd + "日（" + api11.CM + api11.CD + "，是否闰月：" + api11.isleap + "）"</script>
+<textarea class="lang-html">
+<script>
+var api11 = G.date.toLunar(1983, 10, 20);
+$("api11").innerHTML += "1983年10月20对应农历为" + api11.cy + "年" + api11.cm + "月" + api11.cd + "日（" + api11.CM + api11.CD + "，是否闰月：）" + api11.isleap
+//arguments: (y, m, d) [y: 年, m: 月, d: 日]
+//return: {cy: 农历年, cm: 农历月, cd: 农历日, CM: 农历月（中文）, CD: 农历日（中文）, isleap: 是否闰月}
+</script>
+</textarea>
+
+<div id="api12"><strong>12.公历转干支: </strong></div>
+<em><strong>G.date.toGz</strong>(y, m, d)</em>
+<script>var api12 = G.date.toGz(1983, 10, 20);$("api12").innerHTML += "1983年10月20对应干支为" + api12.gy + "年 " + api12.gm + "月 " + api12.gd + "日"</script>
+<textarea class="lang-html">
+<script>
+var api12 = G.date.toGz(1983, 10, 20);
+$("api12").innerHTML += "1983年10月20对应干支为" + api12.gy + "年" + api12.gm + "月 " + api12.gd + "日"
+//arguments: (y, m, d) [y: 年, m: 月, d: 日]
+//return: {gy: 干支年, gm: 干支月, gd: 干支日, sx: 生肖}
+</script>
+</textarea>
+
+<div id="api13"><strong>13.公历转中文格式化农历: </strong></div>
+<em><strong>G.date.formatLunar</strong>(y, m, d)</em>
+<script>var api13 = G.date.formatLunar(1983, 10, 20);$("api13").innerHTML += "1983-10-20返回结果: {y: " + api13.y + ", m: " + api13.m + ", d: " + api13.d + ", w: " + api13.w + ", W: " + api13.W + ", cm: " + api13.cm + ", cd: " + api13.cd + ", CM: " + api13.CM + ", CD: " + api13.CD + ", gy: " + api13.gy + ", gm: " + api13.gm + ", gd: " + api13.gd + ", so: " + api13.so + ", cf: " + api13.cf + ", gf: " + api13.gf + ", sx: " + api13.sx + ", isleap: " + api13.isleap + "}"</script>
+<textarea class="lang-html">
+<script>
+var api13 = G.date.formatLunar(1983, 10, 20);
+$("api13").innerHTML += "1983-10-20返回结果: {y: " + api13.y + ", m: " + api13.m + ", d: " + api13.d + ", w: " + api13.w + ", W: " + api13.W + ", cm: " + api13.cm + ", cd: " + api13.cd + ", CM: " + api13.CM + ", CD: " + api13.CD + ", gy: " + api13.gy + ", gm: " + api13.gm + ", gd: " + api13.gd + ", so: " + api13.so + ", cf: " + api13.cf + ", gf: " + api13.gf + ", sx: " + api13.sx + ", isleap: " + api13.isleap + "}"
+//arguments: (y, m, d) [y: 年, m: 月, d: 日]
+/*	
+result = {
+	y: 年
+	m: 月
+	d: 日	
+	w: 星期（数字）
+	W: 星期（中文）
+	
+	cm: 农历月（数字）
+	cd: 农历日（数字）
+	CM: 农历月（中文）
+	CD: 农历日（中文）
+	
+	gy: 干支纪年
+	gm: 干支纪月
+	gd: 干支纪日
+	
+	so: 节气
+	cf: 农历节日
+	gf: 公历节日
+	sx: 生肖
+	isleap: 是否闰月
+};
+*/	
+</script>
+</textarea>
+
+
+<div id="api14"><strong>14.公历转中文农历模板: </strong></div>
+<em><strong>G.date.lunarTpl</strong>(y, m, d, tpl)</em>
+<script>$("api14").innerHTML += "1983-10-14按模板转换为" + G.date.lunarTpl(1983, 10, 14, "#{y}-#{m}-#{d} 星期#{W} 农历 #{CM}#{CD} #{gy}(#{sx}) #{gm} #{gd} #{gf}");</script>
+<textarea class="lang-html">
+<script>
+$("api14").innerHTML += "1983-10-14按模板转换为" + G.date.lunarTpl(1983, 10, 14, "#{y}-#{m}-#{d} 星期#{W} 农历 #{CM}#{CD} #{gy}(#{sx}) #{gm} #{gd} #{gf}");
+//arguments: (y: 年, m: 月, d: 日, tpl: 模板) [y, m, d: null --> today tpl null --> 内置模板]
+//return: String
+</script>
+</textarea>
+
+<div id="api15"><strong>15.公历转伊历: </strong></div>
+<em><strong>G.date.toIsl</strong>(y, m, d)</em>
+<script>var api15 = G.date.toIsl(1983, 10, 20);$("api15").innerHTML += "1983-10-20返回结果: { iy: " + api15.iy + ", im: " + api15.im + ", id: " + api15.id + ", iw: " + api15.iw + ", jd: " + api15.jd + "}"</script>
+<textarea class="lang-html">
+<script>
+var api15 = G.date.toIsl(1983, 10, 20);$("api15").innerHTML += "1983-10-20返回结果: {y: " + api15.y + ", m: " + api15.m + ", d: " + api15.d + ", iy: " + api15.iy + ", im: " + api15.im + ", id: " + api15.id + ", iw: " + api15.iw + ", jd: " + api15.jd + "}"
+//arguments: (y: 年, m: 月, d: 日)
+//return {iy: 伊历年,im: 伊历月,id: 伊历日,iw: 伊历第几周,jd: 儒略日}
+</script>
+</textarea>
+
+<div id="api16"><strong>16.公历转格式化伊历: </strong></div>
+<em><strong>G.date.formatIsl</strong>(y, m, d)</em>
+<script>var api16 = G.date.formatIsl(2012,9,26);$("api16").innerHTML += "伊历星期名：" + api16.IW + "，马来语星期名：" + api16.MW + "，伊历月份名：" + api16.IM + "，马来语月份名：" + api16.MM</script>
+<textarea class="lang-html">
+<script>
+var api16 = G.date.formatIsl();$("api16").innerHTML += "伊历星期名：" + api16.IW + "，马来语星期名：" + api16.MW + "，伊历月份名：" + api16.IM + "，马来语月份名：" + api16.MM
+//arguments: (y: 年, m: 月, d: 日) [y, m, d: null --> today]
+/*
+return {
+	y: 年,
+	m: 月,
+	d: 日,
+	iy: 伊历年,
+	im: 伊历月,
+	id: 伊历日,
+	iw: 伊历第几周,
+	jd: 儒略日,
+	IW: 伊历星期名,
+	MW: 马来语星期名,
+	IM: 伊历月份名,
+	MM: 马来语月份名
+}
+*/
+</script>
+</textarea>
+
+<div id="api17"><strong>17.公历转伊历模板: </strong></div>
+<em><strong>G.date.islTpl</strong>(y, m, d, tpl)</em>
+<script>$("api17").innerHTML += G.date.islTpl(2011, 1, 2, "#{IW} #{id} #{IM}")</script>
+<textarea class="lang-html">
+<script>
+$("api17").innerHTML += G.date.islTpl(2011, 1, 2, "#{IW} #{id} #{IM}")
+//arguments: (y: 年, m: 月, d: 日, tpl: 模板) [y, m, d: null --> today tpl:null --> 默认内置模板]
+//return String
+</script>
+</textarea>
+
+<div id="api18"><strong>18.检查是否date对象: </strong></div>
+<em><strong>G.date.isDate</strong>(date)</em>
+<script>$("api18").innerHTML += G.date.isDate(new Date())</script>
+<textarea class="lang-html">
+<script>
+$("api18").innerHTML += G.date.isDate(new Date())
+/**
+*检查是否date对象
+*@method: isDate
+*@param: {Date}
+*@return: {Bool}
+*/
+</script>
+</textarea>
+
+<div id="api19"><strong>19.格式化日期对象: </strong></div>
+<em><strong>G.date.format</strong>(pattern, date)</em>
+<script>$("api19").innerHTML += G.date.format()</script>
+<textarea class="lang-html">
+<script>
+$("api19").innerHTML += G.date.format()
+/**
+*格式化日期对象
+*@method: format
+*@param: {String} || 'yyyy-MM-dd', 如："yyyy年M月d日", "yyyy-MM-dd", "MM-dd-yy", "yyyy-MM-dd hh:mm:ss"
+*@param: {Date} || new Date()
+*@return: {Bool}
+*@notice: 为区分minute, month对应大写M
+*@notice: 位数不全: 1. 年份 "yyyy" --> 2011, "yyy" --> 011, "y" --> 1; 2. 其他均为 single --> 不补0, double --> 补0
+*/
+</script>
+</textarea>
+
+<div id="api20"><strong>20.公历转生肖: </strong></div>
+<em><strong>G.date.toSx</strong>(y, m, d)</em>
+<script>$("api20").innerHTML += G.date.toSx(1983, 10, 20)</script>
+<textarea class="lang-html">
+<script>
+$("api20").innerHTML += G.date.toSx(1983, 10, 20)
+/**
+*公历转生肖
+*@method: toSx
+*@param: {Num} year
+*@param: {Num} month
+*@param: {Num} day
+*@return: {String}
+*/
+</script>
+</textarea>
+</pre>
 </body>
+<script src="js/highlight.js"></script>
+<script>
+//console.log(G.date.toGz(2011,9,1))
+;;(function(debugForm, today, console) {
+	$1kjs.highlight.init({skin:'bop', edit:false}); 
+	if(!console || !console.log) {debugForm.style.display = "none";return};
+	debugForm.y.value = today.y;
+	debugForm.m.value = today.m;
+	debugForm.m.select();
+	
+	debugForm.onsubmit = function() {
+		var	i = 0,
+			y = ~~this.y.value,
+			m = ~~this.m.value,
+			d = ~~this.d.value,
+			l = G.date.getDaysByMonth(y, m);
+			
+		for(;i<l;i++) {
+			//console.log(y, m, i+1, G.date.toGz(y, m, i+1))
+			//console.log(y, m, i+1, G.date.toLunar(y, m, i+1))
+			console.log(G.date.lunarTpl(y, m, i+1))
+		}
+		return false;
+	}
+})(document.getElementById("debugForm"), G.date.getDate(), window.console);
+</script>
 </html>
