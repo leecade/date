@@ -4,6 +4,12 @@ QQ: 103024979
 Email: leecade@163.com
 update:
 
+2012.9.7
+
+1. Fixed: mac + firefox13 下农历日期显示为 Undefined
+
+原因：对数组索引的浮点数时处理 有差异 [2.0001] ==> [2]
+
 2011.9.26:
 1. 按jsdoc规范更新注释
 2. 扩展G.date.format方法
