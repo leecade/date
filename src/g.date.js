@@ -4,6 +4,12 @@ QQ: 103024979
 Email: leecade@163.com
 update:
 
+2012.9.7
+
+1. Fixed: mac + firefox13 下农历日期显示为 Undefined
+
+原因：对数组索引的浮点数时处理 有差异 [2.0001] ==> [2]
+
 2011.9.26:
 1. 按jsdoc规范更新注释
 2. 扩展G.date.format方法
@@ -336,7 +342,7 @@ _ = {
 			cm: m,
 			cd: d,
 			CM: (isleap ? "闰" : "") + ((m > 9 ? '十' : '') + map.lunar.c1[m%10]).replace('十二','腊').replace(/^一/,'正') + '月',
-			CD: {'10': '初十', '20': '二十', '30': '三十'}[d] || (map.lunar.c2[Math.floor(d/10)] + map.lunar.c1[d%10]),
+			CD: {'10': '初十', '20': '二十', '30': '三十'}[d] || (map.lunar.c2[Math.floor(d/10)] + map.lunar.c1[~~d%10]),
 			isleap: isleap
 		}
 	},
