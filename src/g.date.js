@@ -258,7 +258,7 @@ _ = {
     getDaysByMonth: function(y, m) {
         
         // A trick about the 3rd param of `new Date`
-        return new Date(y, m + 1, 0).getDate();
+        return new Date(y, m, 0).getDate();
         
         //table lookup except month == 2
         // return m == 2 ? ((y%4 == 0) && (y%100 != 0) || (y%400 == 0)) ? 29 : 28 : map.days[m-1];
